@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"target": "es2020",       // Modern JavaScript features
+		"module": "commonjs",     // Required for Firebase Functions (Node.js)
+		"outDir": "lib",          // Compiled JavaScript will be placed here
+		"rootDir": "src",         // Your TypeScript files go here
+		"strict": true,           // Enables strict type checking
+		"esModuleInterop": true,   // Allows importing modules like "import * as admin from 'firebase-admin'"
+		"skipLibCheck": true,  // <-- Add this to ignore library type errors
+		"moduleResolution": "node"
+	},
+	"include": ["src"],         // Only compile TypeScript files inside "src/"
+	"exclude": ["node_modules"] // Ignore node_modules to speed up build
+}
+
+
