@@ -1,7 +1,6 @@
 import * as functions from "firebase-functions";
 import { admin } from '../helpers/admin';
 
-// ✅ 2️⃣ Accept Friend Request
 export const acceptFriendRequest = functions.https.onCall(
     async (request, context) => {
       const { userId, senderId } = request.data;

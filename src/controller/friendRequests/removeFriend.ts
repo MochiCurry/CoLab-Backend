@@ -1,7 +1,6 @@
 import * as functions from "firebase-functions";
 import { db } from '../helpers/admin';
 
-// ✅ 4️⃣ Remove Friend
 export const removeFriend = functions.https.onCall(
     async (request: functions.https.CallableRequest<{ userId: string; friendId: string }>, context) => {
       const { userId, friendId } = request.data;

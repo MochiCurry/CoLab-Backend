@@ -6,7 +6,6 @@ interface RequestFriendData {
   receiverId: string;
 }
 
-// ✅ 3️⃣ Decline Friend Request
 export const declineFriendRequest = functions.https.onCall(
     async (request: functions.https.CallableRequest<RequestFriendData>, context) => {
       const { receiverId, senderId } = request.data;

@@ -1,7 +1,6 @@
 import * as functions from "firebase-functions";
 import { admin } from '../helpers/admin';
 
-// ✅ 3️⃣ Cancel Friend Request
 export const cancelFriendRequest = functions.https.onCall(
     async (request: functions.https.CallableRequest<{ userId: string; receiverId: string }>, context) => {
       const { userId, receiverId } = request.data;
