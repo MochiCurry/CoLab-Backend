@@ -1,29 +1,48 @@
 import * as functions from "firebase-functions";
 import { admin, db } from "../helpers/admin";
 
+// === Helpers ===
+
+function normalizeUsername(username: string): string {
+  return username.trim().toLowerCase();
+}
+
+function isValidUsernameFormat(username: string): boolean {
+  const isValidLength = username.length >= 4 && username.length <= 15;
+  const isValidChars = /^[a-z0-9_]+$/.test(username);
+  return isValidLength && isValidChars;
+}
+
+function getUsernameRef(username: string) {
+  return db.collection("usernames").doc(username);
+}
+
+function getUserRef(uid: string) {
+  return db.collection("users").doc(uid);
+}
+
+// === Main Function ===
+
 export const createUsername = functions.https.onCall(async (req) => {
   try {
-    const { username } = req.data;
     const uid = req.auth?.uid;
+    const rawUsername = req.data?.username;
 
-    if (!uid || typeof username !== "string") {
+    if (!uid || typeof rawUsername !== "string") {
       throw new functions.https.HttpsError("invalid-argument", "Invalid username or unauthenticated request.");
     }
 
-    const cleanUsername = username.trim().toLowerCase();
+    const cleanUsername = normalizeUsername(rawUsername);
 
-    const isValidLength = cleanUsername.length >= 4 && cleanUsername.length <= 15;
-    const isValidChars = /^[a-z0-9_]+$/.test(cleanUsername);
-
-    if (!isValidLength || !isValidChars) {
+    if (!isValidUsernameFormat(cleanUsername)) {
       throw new functions.https.HttpsError(
         "invalid-argument",
-        "Username must be 4–15 characters and contain only letters, numbers, or underscores."
+        "Username must be 4–15 characters and contain only lowercase letters, numbers, or underscores."
       );
     }
 
-    const usernameRef = db.collection("usernames").doc(cleanUsername);
-    const userRef = db.collection("users").doc(uid);
+    const usernameRef = getUsernameRef(cleanUsername);
+    const userRef = getUserRef(uid);
 
     const takenSnap = await usernameRef.get();
     if (takenSnap.exists) {
@@ -31,11 +50,20 @@ export const createUsername = functions.https.onCall(async (req) => {
     }
 
     await db.runTransaction(async (tx) => {
-      tx.set(usernameRef, { uid });
+      const timestamp = admin.firestore.FieldValue.serverTimestamp();
+
+      tx.set(usernameRef, {
+        user_id: uid,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        claimedByFunction: "createUsername"
+      });
+
       tx.set(userRef, {
         user_id: uid,
         username: cleanUsername,
-        date_created: admin.firestore.FieldValue.serverTimestamp(),
+        date_created: timestamp,
+        has_completed_onboarding: true
       }, { merge: true });
     });
 
@@ -48,6 +76,9 @@ export const createUsername = functions.https.onCall(async (req) => {
       throw error;
     }
 
-    throw new functions.https.HttpsError("internal", error?.message || "Unexpected error occurred while creating username.");
+    throw new functions.https.HttpsError(
+      "internal",
+      error?.message || "Unexpected error occurred while creating username."
+    );
   }
 });

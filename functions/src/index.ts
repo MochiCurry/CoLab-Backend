@@ -9,7 +9,6 @@
 
 // Controller exports
 export * from './controller/events/createEvent';
-
 export * from './controller/comments/addComment';
 export * from './controller/comments/removeComment';
 export * from './controller/events/deleteEvent';
@@ -27,6 +26,14 @@ export * from './controller/thumbnails/eventThumbnail';
 export * from './controller/thumbnails/profileThumbnail';
 export * from './controller/users/editProfile';
 export * from './controller/users/updateProfile';
+export * from './controller/users/createUsername';
+export * from './controller/users/requestDeleteUserAccount';
 
-// Helper exports
-export * from './controller/helpers/admin';
+// Schedule
+// export * from './scheduled/purgeDeletedUsers';
+
+// App Entry
+export * from './controller/appEntryResolver';
+
+// Dev
+export * from './controller/events/createEventDev';

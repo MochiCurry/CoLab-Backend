@@ -8,7 +8,6 @@ interface CollaboratorModel {
 }
 
 export const createEvent = functions.https.onCall(async (req) => {
-  console.log("🚩 NEW VERSION OF CREATE EVENT:");
   const data = req.data;
   const {
     title,
@@ -19,6 +18,7 @@ export const createEvent = functions.https.onCall(async (req) => {
     date,
     location,
     collaborators = [],
+    categories = [],
     required_items = [],
     optional_items = []
   } = data;
@@ -27,14 +27,25 @@ export const createEvent = functions.https.onCall(async (req) => {
     throw new functions.https.HttpsError("invalid-argument", "Missing required fields");
   }
 
+  if (collaborators.length > 4) {
+    throw new functions.https.HttpsError("invalid-argument", "There can only be 4 collaborators.")
+  }
+
   const eventRef = db.collection("events").doc();
   const eventId = eventRef.id;
 
   let bannerImageUrl: string | null = null;
   let eventTimestamp: admin.firestore.Timestamp | null = null;
+  let effectiveDate: admin.firestore.Timestamp;
+  let dateSource: string;
 
   if (date) {
     eventTimestamp = admin.firestore.Timestamp.fromMillis(date * 1000);
+    effectiveDate = eventTimestamp;
+    dateSource = "eventDate";
+  } else {
+    effectiveDate = admin.firestore.Timestamp.now();
+    dateSource = "createdAt";
   }
 
   if (banner_image_path) {
@@ -62,7 +73,7 @@ export const createEvent = functions.https.onCall(async (req) => {
 
   const batch = db.batch();
 
-  // 🔹 Write to the main events collection
+  // Write to the main events collection
   batch.set(eventRef, {
     id: eventId,
     title,
@@ -71,13 +82,16 @@ export const createEvent = functions.https.onCall(async (req) => {
     host,
     location: location || null,
     banner_image_path: banner_image_path || null,
+    categories,
     required_items,
     optional_items,
     ...(eventTimestamp && { date: eventTimestamp }),
+    effective_date: effectiveDate,
+    date_source: dateSource,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  // 🔹 Store the collaborators in the subcollection
+  // Store the collaborators in the subcollection
   for (const [index, user] of users.entries()) {
     const { userId, username, profileImageUrl = null } = user;
 
@@ -101,11 +115,15 @@ export const createEvent = functions.https.onCall(async (req) => {
       id: eventId,
       title,
       description,
+      categories,
       host,
       role,
       ...(bannerImageUrl && { banner_image_url: bannerImageUrl }),
       ...(eventTimestamp && { date: eventTimestamp }),
+      effective_date: effectiveDate,
+      date_source: dateSource,
       joined_at: joinedAt,
+      created_at: admin.firestore.FieldValue.serverTimestamp()
     });
   }
 
@@ -115,15 +133,12 @@ export const createEvent = functions.https.onCall(async (req) => {
   } catch (err) {
     console.error("🔥 Failed to commit batch:", err);
     if (err instanceof Error) {
-      // You can now safely access the properties of the Error object, like message
       throw new functions.https.HttpsError("internal", `Batch commit failed: ${err.message}`);
     } else {
-      // Handle the case where the error is not an instance of Error (if needed)
       throw new functions.https.HttpsError("internal", "An unknown error occurred.");
     }
   }
 });
-
 
 async function fetchCollaboratorDetails(userIds: string[]) {
   try {
@@ -135,7 +150,6 @@ async function fetchCollaboratorDetails(userIds: string[]) {
       return [];
     }
 
-    // Parse the user data from the snapshot
     const collaborators = userDocs.docs.map((doc) => {
       const userData = doc.data();
       return {

@@ -4,7 +4,7 @@ import { admin } from '../helpers/admin';
 export const sendFriendRequest = functions.https.onCall(
   async (request, context) => {
     const { senderId, receiverId } = request.data;
-
+    
     if (!senderId || !receiverId) {
       throw new functions.https.HttpsError("invalid-argument", "Missing user IDs.");
     }
@@ -15,7 +15,7 @@ export const sendFriendRequest = functions.https.onCall(
     const db = admin.firestore();
     const senderRef = db.collection("users").doc(senderId);
     const receiverRef = db.collection("users").doc(receiverId);
-
+    
     const senderRequestRef = senderRef.collection("ownRequests").doc(receiverId);
     const receiverRequestRef = receiverRef.collection("friendRequests").doc(senderId);
 

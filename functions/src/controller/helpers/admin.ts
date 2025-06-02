@@ -6,6 +6,7 @@ admin.initializeApp();
 // Firebase services
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
+const auth = admin.auth();
 
 // Export the services so they can be used in other files
-export { db, bucket, admin };
+export { db, bucket, auth, admin };
