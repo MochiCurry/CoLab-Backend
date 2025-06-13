@@ -8,13 +8,14 @@
  */
 
 // Controller exports
-export * from './controller/events/createEvent';
+export * from './controller/events/createEvent/createEvent';
+export * from './controller/events/editEvent/editEvent';
 export * from './controller/comments/addComment';
 export * from './controller/comments/removeComment';
-export * from './controller/events/deleteEvent';
-export * from './controller/events/leaveEvent';
-export * from './controller/events/addCollaboratorsToEvent';
-export * from './controller/events/removeCollaboratorsFromEvent';
+export * from './controller/events/deleteEvent/deleteEvent';
+export * from './controller/events/leaveEvent/leaveEvent';
+export * from './controller/events/addCollaborators/addCollaboratorsToEvent';
+export * from './controller/events/removeCollaborators/removeCollaboratorsFromEvent';
 export * from './controller/friendRequests/acceptFriendRequest';
 export * from './controller/friendRequests/cancelFriendRequest';
 export * from './controller/friendRequests/declineFriendRequest';
@@ -36,4 +37,4 @@ export * from './controller/users/requestDeleteUserAccount';
 export * from './controller/appEntryResolver';
 
 // Dev
-export * from './controller/events/createEventDev';
+export * from './controller/events/createEvent/createEventDev';

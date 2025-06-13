@@ -2,5 +2,8 @@
   "name": "functions",
   "scripts": {
     "build": "tsc"
+  },
+  "dependencies": {
+    "tsconfig-paths": "^4.2.0"
   }
 }

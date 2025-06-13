@@ -119,7 +119,7 @@ async function updateEventMediaBlock(
 ): Promise<void> {
   const eventRef = db.collection("events").doc(eventId);
   const thumbnailUrl = getPublicUrl(thumbnailPath);
-  const media = buildMediaBlock(bannerPath, thumbnailUrl, dimensions);
+  const media = buildMediaBlock(bannerPath, thumbnailPath, thumbnailUrl, dimensions);
 
   await eventRef.update({ media });
 
