@@ -27,9 +27,11 @@ export const createEventDev = functions.https.onCall(async (req) => {
     const users = buildCollaboratorsList(owner_id, host, collaboratorsProfile);
 
     const batch = db.batch();
-    writeMainEvent(batch, eventRef, data, event_id, owner_id, host, dateRange, effective_date, date_source);
-    writeUserSubcollections(batch, eventRef, users, event_id, data, host, dateRange, effective_date, date_source);
-
+    const eventData = writeMainEvent(
+      batch, eventRef, data, event_id, owner_id, host, dateRange, effective_date, date_source
+    );
+    writeUserSubcollections(batch, eventData, users);
+    
     await batch.commit();
 
     return {

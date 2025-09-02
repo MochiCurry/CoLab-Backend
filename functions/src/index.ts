@@ -37,4 +37,19 @@ export * from './controller/users/requestDeleteUserAccount';
 export * from './controller/appEntryResolver';
 
 // Dev
-export * from './controller/events/createEvent/createEventDev';
+export * from './controller/events/createEvent/createEventDev'; // this is in production
+
+export * from './controller/events/createEvent/createEventDevV2';
+export * from './controller/events/createEvent/onEventWriteMirrorPublic';
+
+// Web
+export { getEvent } from "./controller/events/getEvent";
+
+// Notifications
+// src/index.ts  (or your main barrel)
+export { events_notifyOnWrite } from "./controller/events/notifyOnWrite";
+export { events_collaborators_subscribeOnWrite } from "./controller/events/subscribeOnWrite";
+export { friendRequests_notifyOnWrite } from "./controller/friendRequests/notifications/FriendRequestNotifyOnWrite";
+export { friends_notifyOnWrite } from "./controller/friendRequests/notifications/friendsNotifyOnWrite";
+
+export { deliverNotificationJobs } from "./notifications/jobs/deliverNotificationJobs";
